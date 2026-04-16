@@ -1,4 +1,5 @@
 import { Agent } from "@mastra/core/agent";
+import { Memory } from "@mastra/memory";
 import { createTeachableAdminHttpClientFromEnv } from "../../../../../packages/teachable-admin-http-client/dist/index.js";
 import { makeAllTeachableAdminTools } from "../tools/admin-api-tools.js";
 import type { TeachableAdminToolsDeps } from "../tools/admin-api-tools.js";
@@ -20,5 +21,6 @@ Explain errors returned by tools in plain language; never invent data that a too
 `,
     model: "openai/gpt-5-mini",
     tools: buildTeachableAdminToolsRecord(http),
+    memory: new Memory(),
   });
 }
