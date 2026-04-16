@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "06-ci-scripts-quality-baseline",
+  "title": "CI mínima: lint, tsc, testes e codegen no build",
+  "description": "Configurar scripts e pipeline CI (mínimo viável) que executam lint, typecheck (tsc), testes com cobertura na política do repositório, e geração de código no fluxo de build para evitar drift entre OpenAPI e tools.",
+  "acceptance": [
+    "npm scripts (ou equivalente) documentados: lint, typecheck, test, codegen (e ordem em build).",
+    "CI falha se lint, tsc ou testes falharem; codegen roda onde aplicável para validar que a saída está atualizada ou gera artefatos esperados.",
+    "Escopo de cobertura para código gerado vs. escrito à mão segue exceções documentadas em architecture-brief.json / quality-gate se o gerador não for 100% coberto por linha.",
+    "Versão Node alinhada a LTS usada pelo projeto documentada para reprodutibilidade.",
+    "Nenhum teste de integração com DB ou containers é exigido por este slice (MVP sem persistência) — exceção espelhada no quality-gate."
+  ],
+  "depends_on": ["05-admin-agent-registration"],
+  "architecture_refs": [
+    "clean-architecture",
+    "unit-tests-full-coverage"
+  ],
+  "status": "done",
+  "assigned_agent": "infra-engineer",
+  "sector": "infrastructure-engineering",
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-04-16T22:45:00.000Z"
+}

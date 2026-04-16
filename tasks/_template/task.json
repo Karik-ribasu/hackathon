@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "feature_slug": "example-feature",
+  "task_slug": "example-task",
+  "title": "Replace with task title",
+  "description": "Replace with one short paragraph describing intent.",
+  "acceptance": ["Replace with testable acceptance strings."],
+  "depends_on": [],
+  "architecture_refs": [],
+  "implementation_notes": null,
+  "status": "planned",
+  "assigned_agent": null,
+  "sector": null,
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-01-01T00:00:00.000Z"
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "05-admin-agent-registration",
+  "title": "Agente admin Mastra: registro de todas as tools",
+  "description": "No scaffold npm create mastra@latest, registrar o agente administrativo que agrega todas as tools geradas (e overrides), garantindo que o runtime Mastra exponha o conjunto completo sem UI customizada.",
+  "acceptance": [
+    "O agente admin importa e registra todas as tools emitidas para o admin-api.yaml (~67/67 no escopo atual), verificável por contagem ou teste de registry.",
+    "Nenhuma tela ou frontend de produto é adicionado; apenas o shell padrão do scaffold.",
+    "Integração com o cliente HTTP injetado/compartilhado conforme brief (sem estado global mutável).",
+    "Smoke mínimo ou teste unitário confirma que a lista registrada bate com o modelo de operações (fail se faltar tool).",
+    "Documentação mínima indica como executar o agente localmente com .env de exemplo (sem segredos reais)."
+  ],
+  "depends_on": [
+    "03-generated-output-and-overrides",
+    "04-http-client-env-bootstrap"
+  ],
+  "architecture_refs": [
+    "clean-architecture",
+    "ddd-tactical",
+    "singleton-policy",
+    "unit-tests-full-coverage"
+  ],
+  "status": "done",
+  "assigned_agent": "backend-agent",
+  "sector": "backend-engineering",
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-04-16T14:21:30.000Z"
+}

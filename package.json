@@ -1,0 +1,25 @@
+{
+  "name": "teachable-hackathon",
+  "private": true,
+  "description": "Teachable Mastra admin assistant monorepo. Use Node.js 22 LTS (engines.node >=22.13.0). npm scripts: lint, typecheck, test, test:coverage, codegen:admin-api, build:packages, build, ci. CI build order: build:packages → codegen:admin-api → test:coverage → lint → typecheck (see npm run ci).",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build:admin-openapi-parser": "npm run build -w @teachable/admin-openapi-parser",
+    "build:admin-tools-codegen": "npm run build -w @teachable/admin-tools-codegen",
+    "build:admin-http-client": "npm run build -w @teachable/admin-http-client",
+    "build:packages": "npm run build:admin-openapi-parser && npm run build:admin-tools-codegen && npm run build:admin-http-client",
+    "codegen:admin-api": "npm run codegen:admin-api -w @teachable/admin-tools-codegen && npm run codegen:admin-api -w teachable-mastra-admin",
+    "lint": "npm run lint -w @teachable/admin-openapi-parser && npm run lint -w @teachable/admin-tools-codegen && npm run lint -w @teachable/admin-http-client && npm run lint -w teachable-mastra-admin",
+    "typecheck": "npm run typecheck -w @teachable/admin-openapi-parser && npm run typecheck -w @teachable/admin-tools-codegen && npm run typecheck -w @teachable/admin-http-client && npm run typecheck -w teachable-mastra-admin",
+    "test": "npm run test -w @teachable/admin-openapi-parser && npm run test -w @teachable/admin-tools-codegen && npm run test -w @teachable/admin-http-client && npm run test -w teachable-mastra-admin",
+    "test:coverage": "npm run test:coverage -w @teachable/admin-openapi-parser && npm run test:coverage -w @teachable/admin-tools-codegen && npm run test:coverage -w @teachable/admin-http-client && npm run test:coverage -w teachable-mastra-admin",
+    "build": "npm run build:packages && npm run codegen:admin-api",
+    "ci": "npm run build:packages && npm run codegen:admin-api && npm run test:coverage && npm run lint && npm run typecheck"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "03-generated-output-and-overrides",
+  "title": "Diretório gerado, contrato de paths e overrides pontuais",
+  "description": "Fixar layout do diretório gerado (caminho estável), integrar o emissor ao build, e permitir overrides por arquivo para outliers sem quebrar o fluxo 1:1 — mantendo a fonte de verdade no YAML e regeneração idempotente.",
+  "acceptance": [
+    "Diretório de saída gerado documentado e estável (ex.: pasta única sob o pacote Mastra); .gitignore ou política de versionamento alinhada ao time (gerado em build ou commitado) está explícita.",
+    "Mecanismo de override permite substituir/estender operações excepcionais sem duplicar tools nem violar 1:1.",
+    "Script npm (ou equivalente) executa codegen de forma reprodutível e pode ser acoplado a prebuild/build.",
+    "Documentação mínima descreve como regenerar após mudanças no admin-api.yaml.",
+    "Testes cobrem resolução de overrides e conflitos (falha clara se houver colisão de nomes)."
+  ],
+  "depends_on": ["02-codegen-emitter-mastra-zod"],
+  "architecture_refs": [
+    "clean-architecture",
+    "ddd-tactical",
+    "unit-tests-full-coverage"
+  ],
+  "status": "done",
+  "assigned_agent": "backend-agent",
+  "sector": "backend-engineering",
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-04-16T19:20:00.000Z"
+}

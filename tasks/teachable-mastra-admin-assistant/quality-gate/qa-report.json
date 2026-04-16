@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "quality-gate",
+  "sector": "quality-engineering",
+  "assigned_agent": "qa-agent",
+  "validation_status": "pass",
+  "updated_at": "2026-04-16T14:30:00.000Z",
+  "summary": "Quality gate executado com npm run ci (build:packages, codegen:admin-api, test:coverage, lint, typecheck). Critérios de aceite verificados; waivers de integração DB e E2E Chromium documentados conforme architecture-brief e task acceptance.",
+  "ci": {
+    "repro_command": "npm run ci",
+    "cwd": "repository root",
+    "exit_code": 0,
+    "steps_observed": [
+      "build:packages (admin-openapi-parser, admin-tools-codegen, admin-http-client)",
+      "codegen:admin-api (codegen package + teachable-mastra-admin)",
+      "test:coverage (vitest --coverage em 4 workspaces)",
+      "lint (eslint . em cada workspace)",
+      "typecheck (tsc --noEmit em cada workspace)"
+    ],
+    "test_totals": {
+      "@teachable/admin-openapi-parser": { "files": 7, "tests": 50 },
+      "@teachable/admin-tools-codegen": { "files": 6, "tests": 74 },
+      "@teachable/admin-http-client": { "files": 3, "tests": 23 },
+      "teachable-mastra-admin": { "files": 1, "tests": 3 }
+    },
+    "coverage_line_percent_reported": {
+      "note": "Relatórios vitest/v8 no CI local mostraram 100% lines no escopo instrumentado de cada pacote conforme saída do comando."
+    }
+  },
+  "acceptance_results": [
+    {
+      "criterion": "67/67 tools registradas no agente admin",
+      "status": "pass",
+      "evidence": [
+        "apps/teachable-mastra-admin/src/teachable-admin-tool-registry.test.ts — assert ids alinhados ao OpenAPI parseado, length 67, buildTeachableAdminToolsRecord e agent.listTools() com 67 chaves",
+        "apps/teachable-mastra-admin/src/mastra/agents/teachable-admin-agent.ts — tools: buildTeachableAdminToolsRecord(http)"
+      ]
+    },
+    {
+      "criterion": "tsc, lint e testes automatizados reproduzem CI",
+      "status": "pass",
+      "evidence": [
+        "package.json script ci encadeia build:packages → codegen:admin-api → test:coverage → lint → typecheck",
+        "Execução local npm run ci concluiu com exit code 0"
+      ]
+    },
+    {
+      "criterion": "Testes success/error union e 204 / no-body",
+      "status": "pass",
+      "evidence": [
+        "packages/admin-tools-codegen/test/emit-admin-tools-module.test.ts — expect(ts).toContain kind success/error, z.union, ramo 204 com z.literal(204) e content no_content",
+        "packages/admin-tools-codegen/test/response-classifier.test.ts — família 204 success, noBody true",
+        "packages/teachable-admin-http-client/test/client.test.ts — Response(null,{status:204}), adminRequest retorna json null corpo vazio",
+        "apps/teachable-mastra-admin/src/teachable-admin-tool-registry.test.ts — mockHttp adminRequest resolve { status: 204, json: null }"
+      ]
+    },
+    {
+      "criterion": "Env fail-fast base URL / header obrigatório",
+      "status": "pass",
+      "evidence": [
+        "packages/teachable-admin-http-client/test/env.test.ts — throws quando TEACHABLE_ADMIN_BASE_URL ausente/ inválido ou consumer id ausente",
+        "packages/teachable-admin-http-client/test/client.test.ts — TeachableAdminHttpClient lança com baseUrl/consumerCustomId vazios após trim"
+      ]
+    },
+    {
+      "criterion": "Waiver integração: MVP sem DB / sem containers de integração",
+      "status": "waived",
+      "evidence": [
+        "tasks/teachable-mastra-admin-assistant/architecture-brief.json → integration_test_scope.status not_applicable_mvp_slice",
+        "Nenhum job de integração com DB exigido neste gate; escopo HTTP-only conforme brief"
+      ]
+    },
+    {
+      "criterion": "Waiver E2E Chromium: sem UI de produto",
+      "status": "waived",
+      "evidence": [
+        "tasks/teachable-mastra-admin-assistant/quality-gate/task.json requires_screen_implementation: false",
+        "architecture-brief.json frontend: N/A MVP, apenas scaffold Mastra",
+        ".cursor/skills/testing-and-qa-standards/SKILL.md §4 aplica quando UI existe; aqui não há superfície de produto para exercitar com Chromium"
+      ]
+    },
+    {
+      "criterion": "Cobertura unitária vs código gerado alinhada ao architecture-brief",
+      "status": "pass",
+      "evidence": [
+        "architecture-brief.json unit_test_coverage.exceptions (model.ts, cli.ts, index.ts codegen) e política generated_admin_api_tools por drift/codegen",
+        "CI test:coverage 100% lines nos pacotes conforme saída local"
+      ]
+    }
+  ],
+  "waivers": [
+    {
+      "id": "integration-tests-isolated-containers",
+      "applicable": false,
+      "justification": "MVP sem persistência; architecture-brief integration_test_scope not_applicable_mvp_slice."
+    },
+    {
+      "id": "qa-manual-automated-e2e-chromium",
+      "applicable": false,
+      "justification": "Sem UI de produto; apenas scaffold Mastra. quality-gate task explicitamente documenta exceção."
+    }
+  ],
+  "e2e_appendix": {
+    "chromium_e2e_executed": false,
+    "reason": "Waiver explícito — sem product UI; task acceptance item 6."
+  },
+  "visual_evidence_appendix": {
+    "required": false,
+    "reason": "requires_screen_implementation false; sem design_package / Stitch gate nesta task."
+  },
+  "issues": [
+    {
+      "id": "GIT-001",
+      "severity": "info",
+      "title": "Verificação de paths versionados em git indisponível neste workspace",
+      "detail": "O diretório de trabalho não reportou repositório git (.git ausente). Não foi possível confirmar que tasks/.../quality-gate e demais paths citados na governança estão tracked. Recomenda-se validar em clone CI/real repo antes do merge."
+    }
+  ]
+}

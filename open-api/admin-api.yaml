@@ -1,0 +1,4978 @@
+---
+openapi: 3.0.3
+info:
+  title: Public API V2 - Admin API
+  version: v2
+  description: |-
+    Admin API for school owners and administrators.
+
+    This API allows administrators to manage courses, enrollments, users,
+    and other school resources using API key authentication.
+servers:
+- url: https://developers.teachable.com/
+paths:
+  "/kong_api/v2/products/coaching":
+    get:
+      summary: "/v2/products/coaching"
+      tags:
+      - Coaching
+      description: Retrieve a list of coaching products for the school. Coaching products
+        are returned in order of creation date, with the most recently created products
+        appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/coaching"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+  "/kong_api/v2/products/coaching/{id}":
+    get:
+      summary: "/v2/products/coaching/{id}"
+      tags:
+      - Coaching
+      description: Retrieve details of a specific coaching product by its ID.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Coaching Product ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/coaching"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Coaching product not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/comments":
+    get:
+      summary: "/v2/products/courses/{course_id}/comments"
+      tags:
+      - Courses
+      description: Retrieve a list of comments for a specific course. Comments are
+        returned in order of creation date, with the most recently created comments
+        appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: created_after
+        in: query
+        required: false
+        description: Filter comments created after this ISO8601 datetime
+        schema:
+          type: string
+      - name: created_before
+        in: query
+        required: false
+        description: Filter comments created before this ISO8601 datetime
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by status (approved, awaiting_review, removed, hidden_removed)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
+      - name: sort_by
+        in: query
+        required: false
+        description: Sort by field (created_at, updated_at)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/comment"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+  "/kong_api/v2/products/courses/{course_id}/compliance":
+    get:
+      summary: "/v2/products/courses/{course_id}/compliance"
+      tags:
+      - Courses
+      description: Retrieve the compliance configuration for a specific course.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/course_compliance"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    patch:
+      summary: "/v2/products/courses/{course_id}/compliance"
+      tags:
+      - Courses
+      description: Update the compliance configuration for a specific course.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Successful
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/curriculum":
+    get:
+      summary: "/v2/products/courses/{course_id}/curriculum"
+      tags:
+      - Courses
+      description: Retrieve the curriculum for a specific course, including its sections
+        and lessons. The curriculum is returned in a nested structure, with sections
+        containing their associated lessons.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/lecture_section"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+  "/kong_api/v2/products/courses/{course_id}/enrollments":
+    get:
+      summary: "/v2/products/courses/{course_id}/enrollments"
+      tags:
+      - Courses
+      description: Retrieve a list of enrollments for a specific course. Enrollments
+        can be filtered by enrollment date and status. The list is returned in order
+        of enrollment date, with the most recently enrolled users appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: enrolled_after
+        in: query
+        required: false
+        description: Filter enrollments after this ISO8601 datetime
+        schema:
+          type: string
+      - name: enrolled_before
+        in: query
+        required: false
+        description: Filter enrollments before this ISO8601 datetime
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by status (active, completed, expired, disabled)
+        schema:
+          type: string
+      - name: user_id
+        in: query
+        required: false
+        description: Filter enrollments for a specific user
+        schema:
+          type: string
+      - name: sort_by
+        in: query
+        required: false
+        description: Sort field (enrolled_at, completed_at)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/enrollment"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/enrollments/{id}":
+    get:
+      summary: "/v2/products/courses/{course_id}/enrollments/{user_id}"
+      tags:
+      - Courses
+      description: Retrieve a single course enrollment for a specific user. Returns
+        the enrollment details including progress information.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/enrollment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Enrollment not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    put:
+      summary: "/v2/products/courses/{course_id}/enrollments/{user_id}"
+      tags:
+      - Courses
+      description: Enroll a user in a specific course. If the user is already enrolled,
+        returns the existing enrollment.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: User enrolled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/enrollment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Enrollment creation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    delete:
+      summary: "/v2/products/courses/{course_id}/enrollments/{user_id}"
+      tags:
+      - Courses
+      description: Unenroll a user from a specific course.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: User unenrolled successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Unenrollment failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/lectures/{lecture_id}/comments":
+    get:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments"
+      tags:
+      - Courses
+      description: Retrieve a list of comments for a specific lecture. Comments can
+        be filtered by creation date and status. The list is returned in order of
+        creation date, with the most recently created comments appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: created_after
+        in: query
+        required: false
+        description: Filter comments created after this ISO8601 datetime
+        schema:
+          type: string
+      - name: created_before
+        in: query
+        required: false
+        description: Filter comments created before this ISO8601 datetime
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by status (approved, awaiting_review, removed, hidden_removed)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
+      - name: sort_by
+        in: query
+        required: false
+        description: Sort by field (created_at, updated_at)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/comment"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '404':
+          description: Course or lecture not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '409':
+          description: Comments not available for this lecture
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+    post:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments"
+      tags:
+      - Courses
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/comment"
+                required:
+                - data
+                additionalProperties: false
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+        '404':
+          description: Course or lecture not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '409':
+          description: Comments not available for this lecture
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment_body:
+                  type: string
+                  description: Comment text
+                comment_parent_id:
+                  type: integer
+                  nullable: true
+                  description: Parent comment ID for replies
+              required:
+              - comment_body
+              additionalProperties: false
+  "/kong_api/v2/products/courses/{course_id}/lectures/{lecture_id}/comments/{id}":
+    patch:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments/{id}"
+      tags:
+      - Courses
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Comment ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/comment"
+                required:
+                - data
+                additionalProperties: false
+        '400':
+          description: Invalid status
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+        '404':
+          description: Course, lecture, or comment not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: New moderation status (approved, denied)
+              required:
+              - status
+              additionalProperties: false
+  "/kong_api/v2/products/courses/{course_id}/lectures/{lecture_id}/comments/{comment_id}":
+    delete:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/comments/{comment_id}"
+      tags:
+      - Courses
+      description: Delete a specific comment from a lecture.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: comment_id
+        in: path
+        required: true
+        description: Comment ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Successful
+        '404':
+          description: Course, lecture or comment not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes":
+    post:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes"
+      tags:
+      - Courses
+      description: Create a quiz with specific attributes in lecture.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      responses:
+        '201':
+          description: Successfull
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/quiz"
+        required: true
+        description: Quiz parameters
+  "/kong_api/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes/{id}":
+    put:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes/{id}"
+      tags:
+      - Courses
+      description: Update a specific quiz in a lecture. Create, update or delete questions.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Quiz ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successfull
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/quiz"
+        required: true
+        description: Quiz parameters
+    delete:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/quizzes/{id}"
+      tags:
+      - Courses
+      description: Delete a specific quiz from a lecture.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Quiz ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Quiz deleted
+        '404':
+          description: Quiz not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_id}/completion":
+    get:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_id}/completion"
+      tags:
+      - Courses
+      description: Returns the completion status of a lecture for a specific user.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Completion status returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/lecture_completion"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Course, lecture, or user not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '409':
+          description: User is not enrolled in the course
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    delete:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_id}/completion"
+      tags:
+      - Courses
+      description: Marks a lecture as not completed for a specific user. Idempotent.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Lecture marked as not completed
+        '404':
+          description: Course, lecture, or user not found
+        '409':
+          description: User is not enrolled in the course
+    put:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/users/{user_id}/completion"
+      tags:
+      - Courses
+      description: Marks a lecture as completed for a user.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Lecture marked as completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/lecture_completion"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Course, lecture, or user not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '409':
+          description: User is not enrolled in the course
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/users/{user_id}/progress":
+    get:
+      summary: "/v2/products/courses/{course_id}/users/{user_id}/progress"
+      tags:
+      - Courses
+      description: Retrieve the course progress for a specific user in a specific
+        course. The response includes the overall progress percentage, as well as
+        detailed progress information for each section and lecture within the course.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/course_progress"
+                required:
+                - data
+        '404':
+          description: Course progress not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses/{course_id}/lectures/{lecture_id}/videos/{video_id}":
+    get:
+      summary: "/v2/products/courses/{course_id}/lectures/{lecture_id}/videos/{video_id}"
+      tags:
+      - Courses
+      description: Retrieve details of a specific video attachment for a lecture,
+        including its streaming URL and metadata. Optionally, a user ID can be provided
+        to retrieve user-specific data such as watch history or progress for the video.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: course_id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      - name: lecture_id
+        in: path
+        required: true
+        description: Lecture ID
+        schema:
+          type: integer
+      - name: video_id
+        in: path
+        required: true
+        description: Video attachment ID
+        schema:
+          type: integer
+      - name: user_id
+        in: query
+        required: false
+        description: Watcher User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  video:
+                    "$ref": "#/components/schemas/video"
+                required:
+                - video
+        '404':
+          description: Video not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/courses":
+    get:
+      summary: "/v2/products/courses"
+      tags:
+      - Courses
+      description: Retrieve a list of all courses. The list is returned in order of
+        creation date, with the most recently created courses appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/courses"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/payment_required_error"
+  "/kong_api/v2/products/courses/{id}":
+    get:
+      summary: "/v2/products/courses/{id}"
+      tags:
+      - Courses
+      description: Retrieve details of a specific course.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Course ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/course"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/digital_downloads/{digital_download_id}/attachments":
+    get:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/attachments"
+      tags:
+      - Digital Downloads
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download_attachments"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+    post:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/attachments"
+      tags:
+      - Digital Downloads
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      responses:
+        '201':
+          description: Attachment created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download_attachment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Digital download not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  nullable: true
+                size_in_bytes:
+                  type: integer
+                  nullable: true
+                url:
+                  type: string
+                  nullable: true
+                kind:
+                  type: string
+                  enum:
+                  - download
+                  - redirect
+                button_text:
+                  type: string
+                  nullable: true
+              required:
+              - kind
+              additionalProperties: false
+  "/kong_api/v2/products/digital_downloads/{digital_download_id}/attachments/{id}":
+    get:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/attachments/{id}"
+      tags:
+      - Digital Downloads
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Attachment ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download_attachment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Attachment not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    delete:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/attachments/{id}"
+      tags:
+      - Digital Downloads
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      - name: id
+        in: path
+        required: true
+        description: Attachment ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Attachment deleted
+        '404':
+          description: Attachment not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/digital_downloads/{digital_download_id}/enrollments":
+    get:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/enrollments"
+      tags:
+      - Digital Downloads
+      description: Returns a paginated list of enrollments for a digital download
+        product using the base enrollment contract (without progress).
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        description: Page number (default 1, must be >= 1)
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page (default 25, must be >= 1, max 100)
+        schema:
+          type: integer
+      - name: sort_by
+        in: query
+        required: false
+        description: Sort field (enrolled_at only)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      - name: enrolled_after
+        in: query
+        required: false
+        description: Filter enrollments with enrolled_at >= ISO8601 value
+        schema:
+          type: string
+      - name: enrolled_before
+        in: query
+        required: false
+        description: Filter enrollments with enrolled_at <= ISO8601 value
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by status (active, expired, disabled)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download_enrollments"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '404':
+          description: Digital download not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/digital_downloads/{digital_download_id}/enrollments/{user_id}":
+    get:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/enrollments/{user_id}"
+      tags:
+      - Digital Downloads
+      description: Returns a single enrollment for a user in a digital download product
+        using the base enrollment contract (without progress).
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download_enrollment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    put:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/enrollments/{user_id}"
+      tags:
+      - Digital Downloads
+      description: Creates or ensures active access for a user in a digital download
+        product. This operation is idempotent.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: User enrolled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download_enrollment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Enrollment creation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    delete:
+      summary: "/v2/products/digital_downloads/{digital_download_id}/enrollments/{user_id}"
+      tags:
+      - Digital Downloads
+      description: Ensures final state of no active access for a user in a digital
+        download product. This operation is idempotent.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: digital_download_id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: User unenrolled successfully
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Unenrollment failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/digital_downloads":
+    get:
+      summary: "/v2/products/digital_downloads"
+      tags:
+      - Digital Downloads
+      description: Retrieve a list of all digital downloads. The list is returned
+        in order of creation date, with the most recently created digital downloads
+        appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/digital_download"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+    post:
+      summary: "/v2/products/digital_downloads"
+      tags:
+      - Digital Downloads
+      description: Create a new digital download.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Digital download created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download"
+                required:
+                - data
+                additionalProperties: false
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+                category:
+                  type: string
+                  nullable: true
+                is_published:
+                  type: boolean
+                author_bio_id:
+                  type: integer
+                  nullable: true
+                image_url:
+                  type: string
+                  nullable: true
+              required:
+              - name
+              additionalProperties: false
+  "/kong_api/v2/products/digital_downloads/{id}":
+    get:
+      summary: "/v2/products/digital_downloads/{id}"
+      tags:
+      - Digital Downloads
+      description: Retrieve details of a specific digital download.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Digital download not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    patch:
+      summary: "/v2/products/digital_downloads/{id}"
+      tags:
+      - Digital Downloads
+      description: Update an existing digital download.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Digital download updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/digital_download"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Digital download not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+                category:
+                  type: string
+                  nullable: true
+                is_published:
+                  type: boolean
+                image_url:
+                  type: string
+                  nullable: true
+              additionalProperties: false
+    delete:
+      summary: "/v2/products/digital_downloads/{id}"
+      tags:
+      - Digital Downloads
+      description: Delete a digital download.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Digital Download ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Digital download deleted
+        '404':
+          description: Digital download not found
+  "/kong_api/v2/products/memberships/tiers":
+    get:
+      summary: "/v2/products/memberships/tiers"
+      tags:
+      - Memberships
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/membership_tier"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Membership not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/memberships/tiers/{tier_id}/products":
+    get:
+      summary: "/v2/products/memberships/tiers/{tier_id}/products"
+      tags:
+      - Memberships
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: tier_id
+        in: path
+        required: true
+        description: Membership Tier ID
+        schema:
+          type: string
+      - name: type
+        in: query
+        required: false
+        description: Filter products by type
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/membership_tier_products"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '400':
+          description: Invalid page/per_page query parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Membership or tier not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/memberships/tiers/{tier_id}":
+    patch:
+      summary: "/v2/products/memberships/tiers/{tier_id}"
+      tags:
+      - Memberships
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: tier_id
+        in: path
+        required: true
+        description: Membership Tier ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Tier updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/membership_tier"
+                required:
+                - data
+                additionalProperties: false
+        '400':
+          description: Invalid tier_id
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Membership or tier not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                display_header:
+                  type: boolean
+                header_img_url:
+                  type: string
+                  nullable: true
+                is_listed:
+                  type: boolean
+                is_published:
+                  type: boolean
+              additionalProperties: false
+    delete:
+      summary: "/v2/products/memberships/tiers/{tier_id}"
+      tags:
+      - Memberships
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: tier_id
+        in: path
+        required: true
+        description: Membership Tier ID
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Tier deleted successfully
+        '400':
+          description: Invalid tier_id
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Membership or tier not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '409':
+          description: Tier cannot be deleted due to active subscribers or sales
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/memberships":
+    get:
+      summary: "/v2/products/memberships"
+      tags:
+      - Memberships
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/membership"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Membership not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    patch:
+      summary: "/v2/products/memberships"
+      tags:
+      - Memberships
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Membership updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/membership"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Membership not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                subtitle:
+                  type: string
+                  nullable: true
+                thumbnail_url:
+                  type: string
+                  nullable: true
+                all_products_show:
+                  type: boolean
+              additionalProperties: false
+  "/kong_api/v2/products/{product_type}/{product_id}/pricing-plans":
+    get:
+      summary: "/v2/products/{product_type}/{product_id}/pricing-plans"
+      tags:
+      - Products
+      description: Retrieve a list of pricing plans for a specific product across
+        all supported product types (courses, product_collections, digital_downloads,
+        coaching).
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_type
+        in: path
+        required: true
+        description: Product type (courses, product_collections, digital_downloads,
+          coaching)
+        schema:
+          type: string
+      - name: product_id
+        in: path
+        required: true
+        description: Product ID
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: string
+      - name: sort_by
+        in: query
+        required: false
+        description: Sort field (created_at, updated_at)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/pricing_plan"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    post:
+      summary: "/v2/products/{product_type}/{product_id}/pricing-plans"
+      tags:
+      - Products
+      description: Create a pricing plan for a specific product across all supported
+        product types (courses, product_collections, digital_downloads, coaching).
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_type
+        in: path
+        required: true
+        description: Product type (courses, product_collections, digital_downloads,
+          coaching)
+        schema:
+          type: string
+      - name: product_id
+        in: path
+        required: true
+        description: Product ID
+        schema:
+          type: integer
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/pricing_plan"
+                required:
+                - data
+                additionalProperties: false
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                currency:
+                  type: string
+                price:
+                  type: integer
+                is_recurring:
+                  type: boolean
+                billing_interval:
+                  type: string
+                  nullable: true
+                billing_interval_count:
+                  type: integer
+                  nullable: true
+                description:
+                  type: string
+                  nullable: true
+                detailed_description:
+                  type: string
+                  nullable: true
+                free_trial_length:
+                  type: integer
+                  nullable: true
+                access_limit_date:
+                  type: string
+                  nullable: true
+                access_limit_interval:
+                  type: string
+                  nullable: true
+                access_limit_duration:
+                  type: integer
+                  nullable: true
+                enrollment_cap:
+                  type: integer
+                  nullable: true
+                enrollment_cap_expires_at:
+                  type: string
+                  nullable: true
+                enrollment_cap_display_priority:
+                  type: string
+                  nullable: true
+                enrollment_cap_fulfillment_count:
+                  type: integer
+                  nullable: true
+                enrollment_cap_visible:
+                  type: boolean
+                  nullable: true
+                num_payments_required:
+                  type: integer
+                  nullable: true
+                position:
+                  type: integer
+                  nullable: true
+              additionalProperties: false
+  "/kong_api/v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}":
+    get:
+      summary: "/v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}"
+      tags:
+      - Products
+      description: Retrieve a single pricing plan for a specific product across all
+        supported product types (courses, product_collections, digital_downloads,
+        coaching).
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_type
+        in: path
+        required: true
+        description: Product type (courses, product_collections, digital_downloads,
+          coaching)
+        schema:
+          type: string
+      - name: product_id
+        in: path
+        required: true
+        description: Product ID
+        schema:
+          type: integer
+      - name: plan_id
+        in: path
+        required: true
+        description: Pricing plan ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/pricing_plan"
+                required:
+                - data
+                additionalProperties: false
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    patch:
+      summary: "/v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}"
+      tags:
+      - Products
+      description: Update a pricing plan. Content, access-limit, and enrollment-cap
+        fields are applied. Other pricing fields in the payload are ignored.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_type
+        in: path
+        required: true
+        description: Product type (courses, product_collections, digital_downloads,
+          coaching)
+        schema:
+          type: string
+      - name: product_id
+        in: path
+        required: true
+        description: Product ID
+        schema:
+          type: integer
+      - name: plan_id
+        in: path
+        required: true
+        description: Pricing plan ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/pricing_plan"
+                required:
+                - data
+                additionalProperties: false
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+                detailed_description:
+                  type: string
+                  nullable: true
+                cc_statement_description:
+                  type: string
+                  nullable: true
+                currency:
+                  type: string
+                  nullable: true
+                price:
+                  type: integer
+                  nullable: true
+                is_recurring:
+                  type: boolean
+                  nullable: true
+                billing_interval:
+                  type: string
+                  nullable: true
+                billing_interval_count:
+                  type: integer
+                  nullable: true
+                free_trial_length:
+                  type: integer
+                  nullable: true
+                num_payments_required:
+                  type: integer
+                  nullable: true
+                position:
+                  type: integer
+                  nullable: true
+                is_published:
+                  type: boolean
+                  nullable: true
+                access_limit_date:
+                  type: string
+                  nullable: true
+                access_limit_interval:
+                  type: string
+                  nullable: true
+                access_limit_duration:
+                  type: integer
+                  nullable: true
+                enrollment_cap:
+                  type: integer
+                  nullable: true
+                enrollment_cap_expires_at:
+                  type: string
+                  nullable: true
+                enrollment_cap_display_priority:
+                  type: string
+                  nullable: true
+                enrollment_cap_fulfillment_count:
+                  type: integer
+                  nullable: true
+                enrollment_cap_visible:
+                  type: boolean
+                  nullable: true
+              additionalProperties: false
+    delete:
+      summary: "/v2/products/{product_type}/{product_id}/pricing-plans/{plan_id}"
+      tags:
+      - Products
+      description: Unpublish a pricing plan.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_type
+        in: path
+        required: true
+        description: Product type (courses, product_collections, digital_downloads,
+          coaching)
+        schema:
+          type: string
+      - name: product_id
+        in: path
+        required: true
+        description: Product ID
+        schema:
+          type: integer
+      - name: plan_id
+        in: path
+        required: true
+        description: Pricing plan ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/pricing_plan"
+                required:
+                - data
+                additionalProperties: false
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/product-collections/{product_collection_id}/enrollments":
+    get:
+      summary: "/v2/products/product-collections/{product_collection_id}/enrollments"
+      tags:
+      - Product Collections
+      description: Retrieve a list of enrollments into a specific product collection.
+        Enrollments are returned in order of enrolled date, with the most recently
+        enrolled appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_collection_id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: string
+      - name: sort_by
+        in: query
+        required: false
+        description: Sort field (enrolled_at)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      - name: enrolled_after
+        in: query
+        required: false
+        description: Filter by enrolled_at after ISO8601 time
+        schema:
+          type: string
+      - name: enrolled_before
+        in: query
+        required: false
+        description: Filter by enrolled_at before ISO8601 time
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: Filter by status (active, disabled)
+        schema:
+          type: string
+      - name: user_id
+        in: query
+        required: false
+        description: Filter by enrolled user
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successfull
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/enrollments"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}":
+    get:
+      summary: "/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}"
+      tags:
+      - Product Collections
+      description: Retrieve an enrollment into Product Collection for specific user
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_collection_id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successfull
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/enrollment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    put:
+      summary: "/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}"
+      tags:
+      - Product Collections
+      description: Activate enrollment into Product Collection. Gives access to all
+        Product Collection contents.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_collection_id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successfull
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/enrollment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    delete:
+      summary: "/v2/products/product-collections/{product_collection_id}/enrollments/{user_id}"
+      tags:
+      - Product Collections
+      description: Disable enrollment into Product Collection. Revokes access to all
+        Product Collection contents.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_collection_id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successfull
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/enrollment"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/products/product-collections/{product_collection_id}/products":
+    get:
+      summary: "/v2/products/product-collections/{product_collection_id}/products"
+      tags:
+      - Product Collections
+      description: Retrieve a list of products in a specific product collection. Products
+        are returned in order of creation date, with the most recently created products
+        appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_collection_id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      - name: type
+        in: query
+        required: false
+        description: Filter by Product type (course, coaching, digital_download)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Filtered by type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/product_collection_products"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '404':
+          description: Product Collection not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    post:
+      summary: "/v2/products/product-collections/{product_collection_id}/products"
+      tags:
+      - Product Collections
+      description: Add products to a product collection. Products are returned in
+        order of creation date, with the most recently created products appearing
+        first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_collection_id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successfull
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/product_collection_products"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  "$ref": "#/components/schemas/product_collection_products"
+        required: true
+        description: A list of products to add to Product Collection
+  "/kong_api/v2/products/product-collections/{product_collection_id}/products/{product_type}/{product_id}":
+    delete:
+      summary: "/v2/products/product-collections/{product_collection_id}/products/{product_type}/{product_id}"
+      tags:
+      - Product Collections
+      description: Remove specific Product from Product Collection.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: product_collection_id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      - name: product_type
+        in: path
+        required: true
+        description: Product Type (course, coaching, digital_product)
+        schema:
+          type: string
+      - name: product_id
+        in: path
+        required: true
+        description: Product ID
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Successfull
+        '404':
+          description: Not found
+  "/kong_api/v2/products/product-collections":
+    get:
+      summary: "/v2/products/product-collections"
+      tags:
+      - Product Collections
+      description: Retrieve a list of product collections for the school. Product
+        collections are returned in order of creation date, with the most recently
+        created collections appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
+      - name: sort_by
+        in: query
+        required: false
+        description: Sort by field (created_at, updated_at)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/product_collection"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+    post:
+      summary: "/v2/products/product-collections"
+      tags:
+      - Product Collections
+      description: Create a Product Collection scoped to current school.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/product_collection"
+                required:
+                - data
+                additionalProperties: false
+        '422':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                image_url:
+                  type: string
+              required:
+              - name
+              additionalProperties: false
+        required: true
+        description: Product Collection attributes
+  "/kong_api/v2/products/product-collections/{id}":
+    get:
+      summary: "/v2/products/product-collections/{id}"
+      tags:
+      - Product Collections
+      description: Retrieve details of a specific product collection by its ID.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/product_collection"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Product collection not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    patch:
+      summary: "/v2/products/product-collections/{id}"
+      tags:
+      - Product Collection
+      description: Update details of a specific product collection.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/product_collection"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                  nullable: true
+                image_url:
+                  type: string
+                  nullable: true
+                is_published:
+                  type: boolean
+                is_listed:
+                  type: boolean
+              additionalProperties: false
+        required: true
+        description: Product Collection attributes
+    delete:
+      summary: "/v2/products/product-collections/{id}"
+      tags:
+      - Product Collection
+      description: Delete specific product collection.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: Product Collection ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+        '404':
+          description: Not found
+  "/kong_api/v2/products":
+    get:
+      summary: "/v2/products"
+      tags:
+      - Products
+      description: Retrieve a list of all products across all product types. The list
+        is returned in order of creation date, with the most recently created products
+        appearing first.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/products"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/payment_required_error"
+  "/kong_api/v2/users/{user_id}/purchases":
+    get:
+      summary: "/v2/users/{user_id}/purchases"
+      tags:
+      - Users
+      description: Retrieve a paginated list of purchases for a specific user.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: user_id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        description: 'Page number (default: 1, min: 1)'
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Items per page (default: 25, min: 1, max: 100)'
+        schema:
+          type: integer
+      - name: purchased_after
+        in: query
+        required: false
+        description: Filter purchases after this ISO8601 datetime
+        schema:
+          type: string
+      - name: purchased_before
+        in: query
+        required: false
+        description: Filter purchases before this ISO8601 datetime
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/purchases"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/payment_required_error"
+  "/kong_api/v2/users":
+    post:
+      summary: "/v2/users"
+      tags:
+      - Users
+      description: Create a single user for the current school.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/user"
+                required:
+                - data
+                additionalProperties: false
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/payment_required_error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                  nullable: true
+                role:
+                  type: string
+                allow_marketing_emails:
+                  nullable: true
+                notes:
+                  type: string
+                  nullable: true
+                author_revenue_share:
+                  type: number
+                  nullable: true
+                affiliate_revenue_share:
+                  type: number
+                  nullable: true
+              required:
+              - name
+              - email
+              - role
+              additionalProperties: false
+        required: true
+    get:
+      summary: "/v2/users"
+      tags:
+      - Users
+      description: Retrieve a paginated list of users for the current school.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: 'Page number (default: 1, min: 1)'
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        required: false
+        description: 'Items per page (default: 25, min: 1, max: 100)'
+        schema:
+          type: string
+      - name: sort_key
+        in: query
+        required: false
+        description: Sort key (id, name, email, created_at, updated_at, last_sign_in_at)
+        schema:
+          type: string
+      - name: sort_direction
+        in: query
+        required: false
+        description: Sort direction (asc, desc)
+        schema:
+          type: string
+      - name: name
+        in: query
+        required: false
+        description: Filter by user name
+        schema:
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: Filter by user email
+        schema:
+          type: string
+      - name: role
+        in: query
+        required: false
+        description: Filter by user role
+        schema:
+          type: string
+      - name: created_before
+        in: query
+        required: false
+        description: Filter users created before this ISO8601 datetime
+        schema:
+          type: string
+      - name: created_after
+        in: query
+        required: false
+        description: Filter users created after this ISO8601 datetime
+        schema:
+          type: string
+      - name: user_id
+        in: query
+        required: false
+        description: Filter by user id
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/users"
+                  meta:
+                    "$ref": "#/components/schemas/pagination_meta"
+                required:
+                - data
+                - meta
+                additionalProperties: false
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/payment_required_error"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/kong_api/v2/users/{id}":
+    get:
+      summary: "/v2/users/{id}"
+      tags:
+      - Users
+      description: Retrieve a single user by id for the current school.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/user_with_metrics"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/payment_required_error"
+    patch:
+      summary: "/v2/users/{id}"
+      tags:
+      - Users
+      description: Update a single user for the current school.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    "$ref": "#/components/schemas/user"
+                required:
+                - data
+                additionalProperties: false
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  nullable: true
+                email:
+                  type: string
+                  nullable: true
+                password:
+                  type: string
+                  nullable: true
+                role:
+                  type: string
+                  nullable: true
+                author_revenue_share:
+                  type: number
+                  nullable: true
+                affiliate_revenue_share:
+                  type: number
+                  nullable: true
+              additionalProperties: true
+        required: true
+    delete:
+      summary: "/v2/users/{id}"
+      tags:
+      - Users
+      description: Delete a single user for the current school.
+      parameters:
+      - name: X-Consumer-Custom-ID
+        in: header
+        required: true
+        description: School ID (provided by Kong gateway)
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                - message
+                additionalProperties: false
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/validation_error"
+        '402':
+          description: Payment Required
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/payment_required_error"
+components:
+  securitySchemes:
+    kong_consumer:
+      type: apiKey
+      name: X-Consumer-Custom-ID
+      in: header
+      description: School ID provided by Kong gateway after API key validation.
+    api_key:
+      type: apiKey
+      name: apiKey
+      in: header
+      description: API key authentication using the apiKey header.
+  schemas:
+    error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              nullable: true
+              oneOf:
+              - type: array
+                items:
+                  oneOf:
+                  - type: string
+                  - type: object
+                    additionalProperties:
+                      type: string
+              - type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+          required:
+          - code
+          - message
+          additionalProperties: false
+      required:
+      - error
+      additionalProperties: false
+    payment_required_error:
+      type: object
+      properties:
+        error:
+          type: string
+        error_description:
+          type: string
+      required:
+      - error
+      - error_description
+      additionalProperties: false
+    validation_error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              nullable: true
+              oneOf:
+              - type: array
+                items:
+                  oneOf:
+                  - type: string
+                  - type: object
+                    additionalProperties:
+                      type: string
+              - type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+          required:
+          - code
+          - message
+          additionalProperties: false
+      required:
+      - error
+      additionalProperties: false
+    pagination_meta:
+      type: object
+      properties:
+        page:
+          type: integer
+        per_page:
+          type: integer
+        total_pages:
+          type: integer
+        total_count:
+          type: integer
+      required:
+      - page
+      - per_page
+      - total_pages
+      - total_count
+      additionalProperties: false
+    meta_data:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        from:
+          type: integer
+        to:
+          type: integer
+        per_page:
+          type: integer
+        number_of_pages:
+          type: integer
+      required:
+      - total
+      - page
+      - from
+      - to
+      - per_page
+      - number_of_pages
+      additionalProperties: false
+    product:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_published:
+          type: boolean
+        is_listed:
+          type: boolean
+        href:
+          type: string
+        image_url:
+          type: string
+          nullable: true
+        author_bio_id:
+          type: integer
+          nullable: true
+        author_name:
+          type: string
+          nullable: true
+        product_link:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - name
+      - is_published
+      - is_listed
+      - created_at
+      - updated_at
+      additionalProperties: false
+    products:
+      type: array
+      items:
+        "$ref": "#/components/schemas/product"
+    digital_download:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_published:
+          type: boolean
+        is_listed:
+          type: boolean
+        href:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        kind:
+          type: string
+          nullable: true
+        image_url:
+          type: string
+          nullable: true
+        safe_image_url:
+          type: string
+          nullable: true
+        author_bio_id:
+          type: integer
+          nullable: true
+        total_attachments:
+          type: integer
+        total_admissions:
+          type: integer
+        total_sales:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - is_published
+      additionalProperties: false
+    digital_downloads:
+      type: array
+      items:
+        "$ref": "#/components/schemas/digital_download"
+    digital_download_attachment:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+          nullable: true
+        file_type:
+          type: string
+          nullable: true
+        size_in_bytes:
+          type: integer
+          nullable: true
+        kind:
+          type: string
+        button_text:
+          type: string
+          nullable: true
+        url:
+          type: string
+      required:
+      - id
+      - kind
+      - url
+      additionalProperties: false
+    digital_download_attachments:
+      type: array
+      items:
+        "$ref": "#/components/schemas/digital_download_attachment"
+    product_collection:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_published:
+          type: boolean
+        component_count:
+          type: integer
+        course_count:
+          type: integer
+        href:
+          type: string
+        image_url:
+          type: string
+          nullable: true
+        is_listed:
+          type: boolean
+        safe_image_url:
+          type: string
+        revenue_shares_enabled:
+          type: boolean
+        enrolled:
+          type: integer
+        total_sales:
+          type: integer
+        total_products:
+          type: integer
+        status:
+          type: string
+        digital_product_count:
+          type: integer
+        creator_product_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - is_published
+      additionalProperties: false
+    product_collections:
+      type: array
+      items:
+        "$ref": "#/components/schemas/product_collection"
+    product_collection_product:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        href:
+          type: string
+      required:
+      - id
+      - type
+      - href
+      additionalProperties: false
+    product_collection_products:
+      type: array
+      items:
+        "$ref": "#/components/schemas/product_collection_product"
+    membership:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        subtitle:
+          type: string
+          nullable: true
+        thumbnail_url:
+          type: string
+          nullable: true
+        all_products_show:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - all_products_show
+      - created_at
+      - updated_at
+      additionalProperties: false
+    membership_tier:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        currency:
+          type: string
+          nullable: true
+        position:
+          type: integer
+        price_per_month:
+          type: number
+          nullable: true
+        price_per_month_active:
+          type: boolean
+          nullable: true
+        price_per_year:
+          type: number
+          nullable: true
+        price_per_year_active:
+          type: boolean
+          nullable: true
+        free_trial_length_days:
+          type: integer
+          nullable: true
+        includes_community_access:
+          type: boolean
+        is_published:
+          type: boolean
+        is_listed:
+          type: boolean
+        display_header:
+          type: boolean
+        header_img_url:
+          type: string
+          nullable: true
+        display_title_overlay:
+          type: boolean
+        title_overlay_indentation:
+          type: string
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        total_sales:
+          type: number
+        monthly_sales:
+          type: number
+      required:
+      - id
+      - name
+      - position
+      - is_published
+      - total_sales
+      - monthly_sales
+      additionalProperties: false
+    membership_tiers:
+      type: array
+      items:
+        "$ref": "#/components/schemas/membership_tier"
+    membership_tier_product:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - course
+          - digital_download
+        id:
+          type: integer
+        href:
+          type: string
+      required:
+      - type
+      - id
+      - href
+      additionalProperties: false
+    membership_tier_products:
+      type: array
+      items:
+        "$ref": "#/components/schemas/membership_tier_product"
+    coaching:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        href:
+          type: string
+        is_published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      additionalProperties: false
+    coachings:
+      type: array
+      items:
+        "$ref": "#/components/schemas/coaching"
+    comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        lecture_id:
+          type: integer
+        status:
+          type: string
+        comment_hierarchy:
+          type: array
+          items:
+            type: integer
+        comment_body:
+          type: string
+        comment_parent_id:
+          type: integer
+          nullable: true
+        comment_depth:
+          type: integer
+        permalink_url:
+          type: string
+        full_url:
+          type: string
+        user_id:
+          type: integer
+        gravatar_url:
+          type: string
+        author_name:
+          type: string
+        author_role:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        attachments:
+          type: array
+          items:
+            "$ref": "#/components/schemas/comment_attachment"
+      required:
+      - id
+      - lecture_id
+      - status
+      - comment_body
+      - user_id
+      - author_name
+      additionalProperties: false
+    comments:
+      type: array
+      items:
+        "$ref": "#/components/schemas/comment"
+    comment_attachment:
+      type: object
+      properties:
+        url:
+          type: string
+        kind:
+          type: string
+      required:
+      - url
+      - kind
+      additionalProperties: false
+    course:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique ID of the course.
+        name:
+          type: string
+          description: The name of the course.
+        heading:
+          type: string
+          nullable: true
+          description: The course subtitle, as set in the Information tab of your
+            course admin. If blank, the return value is null.
+        description:
+          type: string
+          nullable: true
+          description: The course description, as set in the Course Description block
+            on sales pages created in Page Editor 1.0. If empty, the return value
+            is null.
+        author_bio_id:
+          type: integer
+          nullable: true
+          description: The ID of the author's bio.
+        href:
+          type: string
+          description: The URL of the course.
+        is_published:
+          type: boolean
+          description: The published status of the course. If published, the return
+            value is true. If unpublished, the return value is false.
+        image_url:
+          type: string
+          nullable: true
+          description: The URL of the course image.
+        created_at:
+          type: string
+          format: date-time
+          description: The creation date of the course.
+        updated_at:
+          type: string
+          format: date-time
+          description: The last update date of the course.
+      required:
+      - id
+      - name
+      - is_published
+      additionalProperties: false
+    courses:
+      type: array
+      items:
+        "$ref": "#/components/schemas/course"
+    course_progress:
+      type: object
+      properties:
+        id:
+          type: integer
+        certificate:
+          type: object
+          properties:
+            issued_at:
+              type: string
+              format: date-time
+              nullable: true
+            page_id:
+              type: integer
+              nullable: true
+            serial_number:
+              type: string
+              nullable: true
+          required:
+          - issued_at
+          - page_id
+          - serial_number
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        enrolled_at:
+          type: string
+          format: date-time
+          nullable: true
+        percent_complete:
+          type: integer
+        sections:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              percent_complete:
+                type: integer
+              lectures:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    is_completed:
+                      type: boolean
+                    completed_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                  required:
+                  - id
+                  - name
+                  - is_completed
+            required:
+            - id
+            - name
+            - percent_complete
+            - lectures
+      required:
+      - id
+      - certificate
+      - percent_complete
+      - sections
+      additionalProperties: false
+    detailed_course:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        heading:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        is_published:
+          type: boolean
+        image_url:
+          type: string
+          nullable: true
+        lecture_sections:
+          "$ref": "#/components/schemas/lecture_sections"
+        author_bio:
+          "$ref": "#/components/schemas/author_bio"
+      required:
+      - id
+      - name
+      - is_published
+      - lecture_sections
+      - author_bio
+      additionalProperties: false
+    course_compliance:
+      type: object
+      properties:
+        requirements:
+          type: object
+          properties:
+            video_completion_enforced:
+              type: boolean
+              nullable: true
+            quiz_pass_required:
+              type: boolean
+              nullable: true
+            quiz_minimum_score:
+              type: number
+              nullable: true
+            quiz_maximum_retakes:
+              type: integer
+              nullable: true
+            lecture_order_required:
+              type: boolean
+              nullable: true
+            certificate_eligible:
+              type: boolean
+              nullable: true
+        certificate_settings:
+          type: object
+          properties:
+            auto_issue:
+              type: boolean
+            template_id:
+              type: integer
+              nullable: true
+    lecture:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        download:
+          type: boolean
+        free_preview:
+          type: boolean
+        description:
+          type: string
+          nullable: true
+        position:
+          type: integer
+        is_published:
+          type: boolean
+        href:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      additionalProperties: false
+    lecture_section:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        position:
+          type: integer
+        is_published:
+          type: boolean
+        drip_content_id:
+          type: integer
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        image_url:
+          type: string
+          nullable: true
+        image_alt_text:
+          type: string
+          nullable: true
+        href:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        drip_content:
+          oneOf:
+          - "$ref": "#/components/schemas/drip_content"
+          - type: object
+            nullable: true
+        lectures:
+          type: array
+          items:
+            "$ref": "#/components/schemas/lecture"
+      required:
+      - id
+      - name
+      additionalProperties: false
+    lecture_sections:
+      type: array
+      items:
+        "$ref": "#/components/schemas/lecture_section"
+    video:
+      type: object
+      properties:
+        id:
+          type: integer
+        video_asset:
+          type: object
+          properties:
+            url:
+              type: string
+            content_type:
+              type: string
+        status:
+          type: string
+        url_thumbnail:
+          type: string
+        media_type:
+          type: string
+        media_duration:
+          type: integer
+      additionalProperties: false
+    author_bio:
+      type: object
+      nullable: true
+      properties:
+        profile_image_url:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        name:
+          type: string
+        user_id:
+          type: integer
+          nullable: true
+      required:
+      - name
+      additionalProperties: false
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        phone_number:
+          type: string
+          nullable: true
+        role:
+          type: string
+        first_enrolled_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_sign_in_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - email
+      - name
+      additionalProperties: false
+    user_with_metrics:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        phone_number:
+          type: string
+          nullable: true
+        role:
+          type: string
+        first_enrolled_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_sign_in_at:
+          type: string
+          format: date-time
+          nullable: true
+        metrics:
+          type: object
+          properties:
+            transactions:
+              type: object
+              properties:
+                count:
+                  type: integer
+                total_spent:
+                  type: number
+              required:
+              - count
+              - total_spent
+              additionalProperties: false
+            enrollments:
+              type: object
+              properties:
+                count:
+                  type: integer
+              required:
+              - count
+              additionalProperties: false
+            quizzes:
+              type: object
+              properties:
+                total:
+                  type: integer
+                passed:
+                  type: integer
+              required:
+              - total
+              - passed
+              additionalProperties: false
+          required:
+          - transactions
+          - enrollments
+          - quizzes
+          additionalProperties: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - email
+      - name
+      additionalProperties: false
+    users:
+      type: array
+      items:
+        "$ref": "#/components/schemas/user"
+    purchase_pricing:
+      type: object
+      properties:
+        id:
+          type: integer
+        href:
+          type: string
+      required:
+      - id
+      - href
+      additionalProperties: false
+    purchase_product:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        href:
+          type: string
+      required:
+      - id
+      - type
+      - href
+      additionalProperties: false
+    purchase_coupon:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: integer
+        href:
+          type: string
+      required:
+      - id
+      - href
+      additionalProperties: false
+    purchase:
+      type: object
+      properties:
+        id:
+          type: integer
+        pricing:
+          "$ref": "#/components/schemas/purchase_pricing"
+        product:
+          "$ref": "#/components/schemas/purchase_product"
+        coupon:
+          "$ref": "#/components/schemas/purchase_coupon"
+        payment_method:
+          type: string
+        purchased_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        final_price:
+          type: number
+      required:
+      - id
+      - pricing
+      - product
+      - coupon
+      - payment_method
+      - purchased_at
+      - created_at
+      - updated_at
+      - final_price
+      additionalProperties: false
+    purchases:
+      type: array
+      items:
+        "$ref": "#/components/schemas/purchase"
+    enrollment:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        href:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - completed
+          - expired
+          - disabled
+        enrolled_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        progress:
+          type: object
+          properties:
+            percent_complete:
+              type: integer
+            completed_at:
+              type: string
+              format: date-time
+              nullable: true
+          required:
+          - percent_complete
+          - completed_at
+          additionalProperties: false
+      required:
+      - user_id
+      - href
+      - status
+      - enrolled_at
+      - created_at
+      - updated_at
+      additionalProperties: false
+    enrollments:
+      type: array
+      items:
+        "$ref": "#/components/schemas/enrollment"
+    digital_download_enrollment:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        href:
+          type: string
+        status:
+          type: string
+          enum:
+          - active
+          - expired
+          - disabled
+        enrolled_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - user_id
+      - href
+      - status
+      - enrolled_at
+      - created_at
+      - updated_at
+      additionalProperties: false
+    digital_download_enrollments:
+      type: array
+      items:
+        "$ref": "#/components/schemas/digital_download_enrollment"
+    pricing_plan:
+      type: object
+      properties:
+        id:
+          type: integer
+        formatted_price:
+          type: string
+        formatted_period_full_words:
+          type: string
+          nullable: true
+        formatted_price_no_period:
+          type: string
+          nullable: true
+        checkout_url:
+          type: string
+          format: uri
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        detailed_description:
+          type: string
+          nullable: true
+        billing_interval:
+          type: string
+          nullable: true
+        enrollment_cap:
+          type: integer
+          nullable: true
+        enrollment_cap_fulfillment_count:
+          type: integer
+        enrollment_cap_visible:
+          type: boolean
+        enrollment_cap_expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        enrollment_cap_display_priority:
+          type: string
+          nullable: true
+        display_enrollment_cap:
+          type: boolean
+        currency:
+          type: string
+        position:
+          type: integer
+        price:
+          type: number
+        is_recurring:
+          type: boolean
+        is_published:
+          type: boolean
+        billing_interval_count:
+          type: integer
+        author_revenue_share:
+          type: number
+          nullable: true
+        num_payments_required:
+          type: integer
+          nullable: true
+        free_trial_length:
+          type: string
+          nullable: true
+        access_limit_duration:
+          type: integer
+          nullable: true
+        access_limit_interval:
+          type: string
+          nullable: true
+        access_limit_date:
+          type: string
+          format: date-time
+          nullable: true
+        product:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: integer
+            href:
+              type: string
+          required:
+          - type
+          - id
+          - href
+          additionalProperties: false
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - price
+      - created_at
+      - updated_at
+      additionalProperties: false
+    pricing_plans:
+      type: array
+      items:
+        "$ref": "#/components/schemas/pricing_plan"
+    transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        course_id:
+          type: integer
+          nullable: true
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - user_id
+      - amount
+      - status
+      - created_at
+      additionalProperties: false
+    transactions:
+      type: array
+      items:
+        "$ref": "#/components/schemas/transaction"
+    webhook:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+        event_types:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - url
+      - event_types
+      - is_active
+      additionalProperties: false
+    webhooks:
+      type: array
+      items:
+        "$ref": "#/components/schemas/webhook"
+    drip_content:
+      type: object
+      properties: {}
+    quiz:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+              answers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    text:
+                      type: string
+              correct_answer_id:
+                type: array
+                items:
+                  type: string
+        graded:
+          type: boolean
+        instant_feedback:
+          type: boolean
+      required:
+      - questions
+      - graded
+      - instant_feedback
+      additionalProperties: false
+    lecture_completion:
+      type: object
+      properties:
+        completed:
+          type: boolean
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - completed
+      - completed_at
+      additionalProperties: false

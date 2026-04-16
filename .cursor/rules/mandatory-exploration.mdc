@@ -1,0 +1,29 @@
+---
+description: Requires the Exploration phase before substantive work for every agent in this repository.
+alwaysApply: true
+---
+
+# Mandatory Exploration (all agents)
+
+This rule applies to **every** Cursor Agent and **every** subagent defined under `.cursor/agents/` for this repository, **except**:
+
+- the persona defined in `exploration-agent.md` when it is the **only** active role for the turn, and  
+- **`improvement-agent`** when it is the **only** active role **and** it was invoked **only** by **`orchestrator-agent`** per `.cursor/skills/production-workflow/SKILL.md` Step 10 with validated upstream exploration/discovery already on record for the same `feature_slug`. In that case, state once: `Exploration: satisfied by upstream pipeline (improvement-agent review only).` then continue.
+
+## Requirement
+
+Before **any** substantive planning, product/design decisions, coding, tests, infra changes, task breakdown, or validation work for the **current user request**:
+
+1. Open and follow `.cursor/agents/exploration-agent.md` (use the Read tool if it is not already in the conversation context).
+2. Run its **Execution Flow** and produce **all sections listed under Output Requirements** in your reply **before** you continue with your primary role’s work.
+3. If you **are** `exploration-agent`, execute **only** that file’s workflow. Do **not** stack a second Exploration precursor on yourself.
+
+## Same request in one thread
+
+If a **complete** Exploration output for the **same** user request (same objective and constraints) already exists above in the conversation, quote it (or point to the message) and append **Deltas only**—new unknowns, changed assumptions, or new options since that version. If nothing changed, state `Exploration: unchanged (see above)` and proceed.
+
+## Forbidden
+
+Skipping Exploration to jump straight into implementation, discovery, delivery, engineering-manager planning, or QA outputs (except the **`improvement-agent`** exception above).
+
+The orchestration skill `.cursor/skills/production-workflow/SKILL.md` also encodes Exploration as a **hard gate**; this rule applies even outside that workflow.

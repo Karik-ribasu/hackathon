@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "summary": "Assistente admin em Mastra (TypeScript) que expõe cada operação HTTP do OpenAPI Teachable Admin como ferramenta gerada (createTool + Zod), com cliente fetch nativo como adaptador de saída, autenticação apenas via X-Consumer-Custom-ID e base URL por ambiente. Camadas internas permanecem testáveis e sem acoplamento direto ao framework além dos pontos de registro do agente e dos adapters gerados.",
+  "clean_architecture": {
+    "layers": [
+      "domain (contratos de erro/sucesso, regras de nomenclatura de ferramentas, invariantes de configuração: base URL e header obrigatório)",
+      "application (orquestração de chamadas HTTP por operação; mapeamento request/response; tratamento 204/corpo vazio)",
+      "infrastructure/adapters (cliente HTTP fetch + headers; emissão/uso das ferramentas Mastra como adaptadores ao framework)",
+      "presentation-edge (registro do agente admin Mastra que agrega as tools; sem UI de produto)"
+    ],
+    "dependency_rule": "Domain e regras de aplicação não importam Mastra nem detalhes do OpenAPI em runtime além do que for injetado via factories geradas; o gerador e o YAML ficam no build; código gerado e hand-written overrides dependem de ports (tipos/funções puras) definidos no núcleo ou em módulos compartilhados estáticos, nunca o contrário."
+  },
+  "ddd": {
+    "ubiquitous_language_notes": "Termos alinhados ao admin-api.yaml: operação, path, method, operationId (quando existir), tool name determinístico, response success vs error union, 204 sem corpo. 'Admin assistant' é o aggregate experience do agente; cada tool representa um caso de uso de API administrativa de forma 1:1 com a especificação.",
+    "bounded_contexts": [
+      "Teachable Admin API (consumo via OpenAPI)",
+      "Mastra Agent Runtime (registro e execução de tools)"
+    ],
+    "tactical": [
+      "Value objects para URLs normalizadas, nomes de tool e headers de autenticação quando fizer sentido no código não gerado",
+      "Domain services apenas se uma regra não couber em um único módulo (ex.: política global de fail-fast para config)",
+      "Evitar modelo anêmico no núcleo: contratos Zod/TS gerados materializam o contato com a API; invariantes de ambiente ficam validadas antes de executar tools"
+    ]
+  },
+  "singleton_policy": "Sem singletons mutáveis globais. Preferir factories e injeção explícita (config, cliente HTTP). Exceção documentada e aceitável: instância imutável/cache leve de cliente HTTP stateless compartilhado por processo, desde que não guarde estado mutável e seja substituível em testes via injeção ou variáveis de ambiente mockáveis.",
+  "frontend": {
+    "atomic_design": "N/A no MVP: não há UI de produto nem árvore atoms/molecules/organisms; apenas o scaffold padrão de `npm create mastra@latest` (shell/default do CLI), sem telas customizadas.",
+    "styling": "N/A no MVP além do shell padrão do Mastra; sem styled-components, theme tokens ou CSS Modules de produto neste feature_slug. Qualquer estilo vier apenas do default do scaffold e não deve ser alvo de tarefas de design system."
+  },
+  "unit_test_coverage": {
+    "line_coverage_target_percent": 100,
+    "exceptions": [
+      {
+        "path_glob": "packages/admin-openapi-parser/src/model.ts",
+        "rationale": "Contratos apenas de tipos; sem statements executáveis após emit do TypeScript (espelhado em vitest coverage exclude)."
+      },
+      {
+        "path_glob": "packages/admin-tools-codegen/src/cli.ts",
+        "rationale": "Entrypoint fino do CLI; coberto indiretamente pelos testes de fluxo de codegen (vitest exclude documentado)."
+      },
+      {
+        "path_glob": "packages/admin-tools-codegen/src/index.ts",
+        "rationale": "Re-export puro para consumidores do pacote (vitest exclude documentado)."
+      }
+    ],
+    "generated_admin_api_tools": "Arquivos emitidos em apps/teachable-mastra-admin/src/generated/** e packages/admin-tools-codegen/generated/** não entram no escopo mínimo de line coverage: validação por drift (codegen + git diff na CI) e testes do gerador; ESLint ignora esses paths."
+  },
+  "integration_test_scope": {
+    "status": "not_applicable_mvp_slice",
+    "rationale": "MVP sem persistência de produto neste feature_slug; não há escopo integration-tests-full-coverage nem jobs com DB/containers exigidos por 06-ci-scripts-quality-baseline (espelhado em quality-gate)."
+  },
+  "constraints_for_implementation": [
+    "Fonte única de verdade das operações: open-api/admin-api.yaml; gerador build-time produz pasta gerada + overrides pontuais para outliers",
+    "Uma tool Mastra por operação HTTP (~67); nomes determinísticos (method + path normalizado) quando operationId ausente",
+    "outputSchema: união explícita success + error; 204 e respostas sem corpo tratadas de forma explícita no schema/contrato",
+    "Cliente HTTP: apenas fetch nativo; header X-Consumer-Custom-ID em toda requisição; base URL somente de variável de ambiente; falha rápida e mensagens claras se faltar config",
+    "Sem frontend customizado além do scaffold Mastra",
+    "Lint, typecheck, testes mínimos e CI em Node LTS",
+    "Tarefas de delivery devem carregar architecture_refs do skill quando aplicável (ex.: clean-architecture, ddd-tactical, singleton-policy; qa-* conforme testing-and-qa-standards para quality-gate)"
+  ],
+  "delivery_hints": [
+    "Pacote ou pasta isolada para codegen (parse OpenAPI → AST/intermediário → emissão createTool + Zod)",
+    "Diretório gerado versionado ou gerado em build com caminho estável; mecanismo de override por arquivo para operações excepcionais",
+    "Módulo adapter `TeachableAdminHttpClient` (fetch) recebendo baseUrl e consumer id; sem lógica de auth adicional",
+    "Agente admin em arquivo único ou módulo fino que importa e registra todas as tools geradas (+ overrides)",
+    "Testes: snapshots ou contratos dos schemas gerados; casos 204/no-body e ramos de erro na união",
+    "Script npm para codegen acoplado ao build (prebuild ou dedicated) e documentado no package da feature",
+    "Separar tarefas: (1) parser + modelo intermediário, (2) emitter Mastra/Zod, (3) client + env validation, (4) agent registration, (5) CI quality gate)"
+  ]
+}

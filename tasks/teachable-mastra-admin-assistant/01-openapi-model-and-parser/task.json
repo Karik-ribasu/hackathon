@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "01-openapi-model-and-parser",
+  "title": "Modelo intermediário e parser OpenAPI (1:1 operações)",
+  "description": "Ler open-api/admin-api.yaml e produzir um modelo intermediário estável (operações HTTP, paths, métodos, parâmetros, corpos, respostas) com garantia 1:1 entre operação e futura tool, incluindo regras de nomenclatura determinística quando operationId faltar.",
+  "acceptance": [
+    "Todas as operações do admin-api.yaml são representadas no modelo intermediário sem omissão ou colapso (1 operação = 1 entrada de geração).",
+    "Nomes de tool derivados são determinísticos (ex.: method + path normalizado) e documentados quando operationId estiver ausente.",
+    "O parser falha de forma explícita em YAML inválido ou em invariantes que impedem mapeamento 1:1.",
+    "Testes unitários cobrem casos de borda do parser/modelo em módulos escritos à mão (sem depender de rede).",
+    "Nenhum singleton mutável global; factories ou funções puras conforme architecture-brief singleton-policy."
+  ],
+  "depends_on": [],
+  "architecture_refs": [
+    "clean-architecture",
+    "ddd-tactical",
+    "singleton-policy",
+    "unit-tests-full-coverage"
+  ],
+  "status": "done",
+  "assigned_agent": "backend-agent",
+  "sector": "backend-engineering",
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-04-16T21:55:00.000Z"
+}

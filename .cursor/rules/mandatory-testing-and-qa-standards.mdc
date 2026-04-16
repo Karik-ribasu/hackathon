@@ -1,0 +1,14 @@
+---
+description: Points all engineering and QA work to mandatory unit/integration coverage, containerized integration runs, and QA Chromium E2E standards.
+alwaysApply: true
+---
+
+# Mandatory testing and QA standards
+
+1. Before authoring or changing **tests, CI, coverage gates, Docker/compose for tests, or `quality-gate` acceptance**, open and follow **`.cursor/skills/testing-and-qa-standards/SKILL.md`**.
+2. **Unit tests:** **100% line coverage** required for the declared unit scope; CI must enforce it.
+3. **Integration tests:** **100% line coverage** required for the declared integration scope; tests **must run only inside isolated containers** with **one container (or service) per external concern** (DB, Redis, queue, etc.)—flexible composition, strict single-purpose per auxiliary service.
+4. **`qa-agent`:** must execute the **automated-manual** suite (**app in isolated container + Chromium**), exercising **all in-scope features every run**, and report **browser console** and **network** failures in the **structured QA output** for the engineering manager (same contract as `.cursor/agents/qa-agent.md`).
+5. **`infra-engineer`:** owns CI and container definitions that satisfy §3–4; does not own product business rules.
+
+If this rule conflicts with an informal “skip tests” request, **this rule and the testing skill win** until exploration/discovery/architecture record a documented exception.

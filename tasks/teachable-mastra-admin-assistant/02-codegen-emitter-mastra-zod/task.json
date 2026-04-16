@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "02-codegen-emitter-mastra-zod",
+  "title": "Emissor codegen: createTool + Zod (união sucesso/erro e 204)",
+  "description": "Consumir o modelo intermediário e emitir código TypeScript que define uma tool Mastra por operação via createTool, com schemas Zod para input/output, união explícita success+error no output, e tratamento explícito de 204 e respostas sem corpo conforme OpenAPI.",
+  "acceptance": [
+    "Cada operação gera exatamente uma definição de tool Mastra (createTool) com nomes estáveis alinhados ao parser.",
+    "outputSchema (ou equivalente) modela união success + error conforme contrato; respostas 204/no-body têm ramo explícito nos tipos/schemas gerados.",
+    "O emissor é determinístico (ordem estável de saída) para diffs previsíveis.",
+    "Testes unitários cobrem o emissor e/ou snapshots de trechos gerados representativos (incluindo 204 e erro).",
+    "Código gerado usa apenas fetch nativo no limite do adaptador HTTP referenciado (sem axios); header X-Consumer-Custom-ID e base URL vêm do cliente injetável, não hardcoded."
+  ],
+  "depends_on": ["01-openapi-model-and-parser"],
+  "architecture_refs": [
+    "clean-architecture",
+    "ddd-tactical",
+    "singleton-policy",
+    "unit-tests-full-coverage"
+  ],
+  "status": "done",
+  "assigned_agent": "backend-agent",
+  "sector": "backend-engineering",
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-04-16T23:45:00.000Z"
+}

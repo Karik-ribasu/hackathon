@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "quality-gate",
+  "title": "Quality gate: validação QA do MVP Mastra admin assistant",
+  "description": "qa-agent confirma métricas de sucesso do discovery (tools registradas, tsc limpo, testes de schemas/204, env fail-fast, CI) e documenta exceções explícitas: sem testes de integração com DB/containers neste MVP; sem E2E Chromium porque não há UI de produto — apenas scaffold Mastra.",
+  "acceptance": [
+    "Verificado que todas as tools esperadas estão registradas no agente admin (alvo 67/67 conforme métrica do discovery).",
+    "Typecheck (tsc) e lint passam nos comandos acordados; testes automatizados passam na CI local reproduzível.",
+    "Existem evidências de testes para união success/error e tratamento 204 / no-body conforme escopo.",
+    "Validação de env: comportamento fail-fast demonstrado (teste ou checklist) quando base URL ou header obrigatório faltam.",
+    "Exceção explícita — integração: MVP sem DB; não há escopo integration-tests-isolated-containers / integration-tests-full-coverage; gate documenta N/A com base no architecture-brief (consumo HTTP apenas, sem persistência).",
+    "Exceção explícita — E2E Chromium: qa-manual-automated-e2e-chromium NÃO aplicável; não há superfície UI de produto (apenas scaffold npm create mastra@latest sem telas customizadas); waiver registrado com justificativa no relatório QA.",
+    "Relatório QA estruturado com validation_status pass/fail e issues[] para handoff ao EM.",
+    "Cobertura unitária vs. código gerado: escopo e exceções espelham tasks/teachable-mastra-admin-assistant/architecture-brief.json → unit_test_coverage (incl. política de generated_admin_api_tools)."
+  ],
+  "depends_on": ["06-ci-scripts-quality-baseline"],
+  "architecture_refs": ["qa-validation", "unit-tests-full-coverage"],
+  "status": "done",
+  "assigned_agent": "qa-agent",
+  "sector": "quality-engineering",
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-04-16T14:30:00.000Z"
+}

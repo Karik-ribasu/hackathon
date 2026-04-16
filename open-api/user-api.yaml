@@ -1,0 +1,309 @@
+---
+openapi: 3.0.3
+info:
+  title: OAuth API V2 - End User API
+  version: v2
+  description: |-
+    End User API for OAuth authenticated users.
+
+    This API allows end users to access their courses, lectures, and profile information
+    using OAuth access tokens.
+servers:
+- url: "/"
+paths:
+  "/v2/current_user/courses":
+    get:
+      summary: fetches courses for current_user
+      tags:
+      - End User API V2
+      security:
+      - access_token: []
+      responses:
+        '200':
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  courses:
+                    "$ref": "#/components/schemas/courses"
+                  meta:
+                    "$ref": "#/components/schemas/meta_data"
+                required:
+                - courses
+                - meta
+                additionalProperties: false
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+security:
+- access_token: []
+components:
+  securitySchemes:
+    access_token:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'OAuth Bearer token. Format: `Bearer YOUR_ACCESS_TOKEN`'
+  schemas:
+    error:
+      type: object
+      properties:
+        error:
+          type: string
+        error_description:
+          type: string
+      required:
+      - error
+    meta_data:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        from:
+          type: integer
+        to:
+          type: integer
+        per_page:
+          type: integer
+        number_of_pages:
+          type: integer
+      required:
+      - total
+      - page
+      - from
+      - to
+      - per_page
+      - number_of_pages
+      additionalProperties: false
+    course:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        heading:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        is_published:
+          type: boolean
+        image_url:
+          type: string
+          nullable: true
+      required:
+      - id
+      - name
+      - is_published
+      additionalProperties: false
+    courses:
+      type: array
+      items:
+        "$ref": "#/components/schemas/course"
+    detailed_course:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        heading:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        is_published:
+          type: boolean
+        image_url:
+          type: string
+          nullable: true
+        lecture_sections:
+          type: array
+          items:
+            "$ref": "#/components/schemas/lecture_section"
+        author_bio:
+          "$ref": "#/components/schemas/author_bio"
+      required:
+      - id
+      - name
+      - is_published
+      - lecture_sections
+      - author_bio
+      additionalProperties: false
+    lecture:
+      type: object
+      properties:
+        id:
+          type: integer
+        position:
+          type: integer
+      required:
+      - id
+      - position
+      additionalProperties: false
+    lectures:
+      type: array
+      items:
+        "$ref": "#/components/schemas/lecture"
+    detailed_lecture:
+      type: object
+      properties:
+        id:
+          type: integer
+        position:
+          type: integer
+        name:
+          type: string
+        is_published:
+          type: boolean
+        lecture_section_id:
+          type: integer
+        attachments:
+          "$ref": "#/components/schemas/attachments"
+      required:
+      - id
+      - position
+      - name
+      - is_published
+      - lecture_section_id
+      - attachments
+      additionalProperties: false
+    lecture_section:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        is_published:
+          type: boolean
+        position:
+          type: integer
+        lectures:
+          "$ref": "#/components/schemas/lectures"
+      required:
+      - id
+      - name
+      - is_published
+      - lectures
+      - position
+      additionalProperties: false
+    author_bio:
+      type: object
+      properties:
+        profile_image_url:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        name:
+          type: string
+        user_id:
+          type: integer
+      required:
+      - name
+      - user_id
+      additionalProperties: false
+    attachment:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          nullable: true
+        kind:
+          type: string
+        url:
+          type: string
+          nullable: true
+        text:
+          type: string
+          nullable: true
+        position:
+          type: integer
+          nullable: true
+        file_size:
+          type: integer
+          nullable: true
+        file_extension:
+          type: string
+          nullable: true
+        quiz:
+          "$ref": "#/components/schemas/quiz"
+      required:
+      - id
+      - kind
+      additionalProperties: false
+    attachments:
+      type: array
+      items:
+        "$ref": "#/components/schemas/attachment"
+    quiz:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              question:
+                type: string
+              question_type:
+                type: string
+              answers:
+                type: array
+                items:
+                  type: string
+              correct_answers:
+                type: array
+                items:
+                  type: string
+              graded:
+                type: boolean
+            required:
+            - question
+            - question_type
+            - answers
+            - correct_answers
+            - graded
+            additionalProperties: false
+      required:
+      - id
+      - type
+      - questions
+      additionalProperties: false
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - email
+      - name
+      - created_at
+      additionalProperties: false

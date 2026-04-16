@@ -1,0 +1,58 @@
+---
+description: "Enforces delegation boundaries: principal session never implements product code; defines invoke/write permissions for every repo agent per production-workflow."
+alwaysApply: true
+---
+
+# Agent permissions and delegation boundaries
+
+Normative references: `.cursor/skills/production-workflow/SKILL.md`, `.cursor/agents/*.md`. If a user message conflicts with this file or the skill, **this file + the skill win** for what may be edited or invoked.
+
+## Definitions
+
+- **Principal session:** the default Cursor chat/composer for this repo when **not** acting under a single named subagent persona for the whole turn.
+- **Product implementation:** changes that ship or alter application/runtime behavior (e.g. `app/`, `src/`, product tests `*.test.*` / `*.spec.*`, app SQL migrations, runtime `package.json` / lockfile / `next.config.*` consumed by the app). **Governance-only** edits under `.cursor/**` are **not** product implementation.
+
+## Principal session (hard rules)
+
+1. **Forbidden:** any product implementation—**no exceptions** (including “just scaffold”, “small fix”, “subagent did not finish”).
+2. **Forbidden:** in the **same assistant response** where a pipeline `Task` was used (`orchestrator-agent`, `engineering-manager-agent`, …): starting or continuing patches to product paths **before** the user explicitly asks for the next step **and** without delegating again to the **correct** agent via `Task`.
+3. After `Task(orchestrator-agent)` completes: **only** summarize, validate handoffs, list gaps, and propose the **next** `Task(...)` (typically `engineering-manager-agent` for execution). **Do not** implement to “unblock”.
+4. **Allowed:** read-only analysis; validating JSON/text against skills; `Task` invocations that respect the tables below; editing **only** `.cursor/**` when the user asks for governance/docs of agents/rules/skills.
+
+---
+
+## Per-agent permissions (repo agents under `.cursor/agents/`)
+
+Use **`Task(subagent_type="…")`** names exactly as supported by your runner (aligned with `production-workflow`).
+
+| Agent (Task / persona) | Agent definition file | May invoke via `Task` (downstream) | May write / implement | Forbidden |
+|------------------------|----------------------|-----------------------------------|-------------------------|-----------|
+| **Principal session** | — | `orchestrator-agent`, `engineering-manager-agent`; other agents **only** if the user explicitly runs that single role and it does not bypass EM for implementation | `.cursor/**` when requested | Product tree; “finishing” work after orchestration without a new `Task` |
+| **orchestrator-agent** | `orchestrator.md` | **`exploration-agent`**, **`discovery-agent`**, **`architecture-agent`**, **`delivery-agent`**, **`engineering-manager-agent`**, **`improvement-agent`** (invoke **once**, **last** `Task` before Step 11) | **Step 11 only:** governance files under the skill allowlist (`.cursor/rules/**`, `.cursor/agents/**`, `.cursor/skills/**`, `tasks/_template/**`) **exactly** as written in a validated **`improvement-agent`** plan with `orchestrator_apply: true` | Product / application tree; any `Task` **after** `improvement-agent`; calling `frontend-agent`, `backend-agent`, `qa-agent`, etc. directly |
+| **improvement-agent** | `improvement-agent.md` | **None** (leaf agent) | `tasks/<feature_slug>/improvements/plans/*.json` and append-only `tasks/<feature_slug>/improvements/history.jsonl` | Product code; `task.json` registry; `architecture-brief.json`; `Task` to other agents; acting as EM, QA, exploration, or discovery |
+| **exploration-agent** | `exploration-agent.md` | None (research/read tools only) | Prose / structured exploration output in the reply | Final build decisions; product code; pretending to be Discovery/Architecture |
+| **discovery-agent** | `discovery.md` | None | Discovery contract in the reply (`decision`, scope, …) | Product code; implementation planning owned by Delivery without Discovery inputs |
+| **architecture-agent** | `architecture-agent.md` | None | `tasks/<feature_slug>/architecture-brief.json` (+ short summary) | Application source; contradicting `architecture-standards` without a recorded decision |
+| **delivery-agent** | `delivery.md` | None | Delivery JSON in reply + on-disk **`tasks/<feature_slug>/<task_slug>/task.json`** per workflow | Application source; inventing tasks that contradict the brief without escalation |
+| **engineering-manager-agent** | `engineering-manager.md` | **`ui-generator-agent`**, **`design-system-agent`**, **`ui-critic-agent`**, **`ui-refiner-agent`**, **`frontend-agent`**, **`backend-agent`**, **`infra-engineer`**, **`data-engineer`**, **`blockchain-developer`**, **`qa-agent`**, … (design prep, implementation, and QA **only** through EM) | `tasks/**/task.json` coordination fields (`assigned_agent`, `sector`, `status`, …) per skill, plus **`requires_screen_implementation`** and **`stitch_handoff`** when the production-workflow task registry schema includes them | Application feature code; calling specialists from the orchestrator instead of EM |
+| **ui-generator-agent** | `ui_generator_agent.md` | **None** | Assigned `tasks/<feature_slug>/<task_slug>/artifacts/` (e.g. `design_package.json`, exploration notes); **`design/stitch/**`** (screens, code, `meta.json`) when **`stitch_workflow: source_of_truth`** per **`.cursor/skills/design/stitch_workflow.skill.md`**; Stitch MCP usage per agent | Product application source (`app/`, `src/`); declaring final shipped UI without EM pipeline |
+| **design-system-agent** | `design_system_agent.md` | **None** | Assigned **`tasks/**/artifacts/**`** (`design_system.json`, `design_package.json` updates, normalized UI notes) | Product application source; contradicting architecture brief without escalation |
+| **ui-critic-agent** | `ui_critic_agent.md` | **None** | Assigned **`tasks/**/artifacts/**`** (`ui_critique.json`, `design_package.json` updates, `design_visual_acceptance.json` when tasked) | Product application source; implementing fixes (refiner / frontend own changes) |
+| **ui-refiner-agent** | `ui_refiner_agent.md` | **None** | Assigned **`tasks/**/artifacts/**`** (`ui_spec.json`, `design_package.json` updates) | Product application source |
+| **backend-agent** | `backend-engineer.md` | **None** (EM owns sequencing; no self-delegation) | Server-side / domain wiring per assigned `task_slug` + brief | UI-only scope unless the assigned task explicitly includes it; overriding Architecture/Delivery without escalation |
+| **frontend-agent** | `frontend-engineer.md` | None (default) | UI / client code per assigned `task_slug` + brief | Persistence drivers in client bundles; secrets in client; owning backend tasks |
+| **infra-engineer** | `infra-engineer.md` | None (default) | CI/CD, envs, deploy/reliability assets per task | Product domain rules unrelated to infra task |
+| **data-engineer** | `data-engineer.md` | None (default) | Metrics, pipelines, instrumentation per task | Unscoped product feature work outside data task |
+| **blockchain-developer** | `blockchain-developer.md` | None (default) | Contracts / on-chain code per task | Non-chain app features unless explicitly in task |
+| **qa-agent** | `qa-agent.md` | None (default) | Tests, checks, QA harnesses, reports per **`quality-engineering`** assignment | Invoked **only** by **orchestrator** (forbidden—must be EM); shipping unrelated features “while testing” |
+
+---
+
+## Orchestration invariants (cross-cutting)
+
+1. **Single front door for implementation:** product-changing work runs under **`engineering-manager-agent`** assignments—not the principal session, not **`orchestrator-agent`** (except Step **11** governance edits per `production-workflow`).
+2. **Single front door for QA:** **`qa-agent`** is invoked by **`engineering-manager-agent`**, never by **`orchestrator-agent`** (per `production-workflow` + `qa-agent.md`).
+3. **Improvement is last delegated step:** on **`decision: build`** with QA **`pass`**, **`orchestrator-agent`** invokes **`improvement-agent`** exactly **once** as the **final** `Task`, then performs **Step 11** apply itself—**no** other agent runs after `improvement-agent` in the same orchestrator run.
+4. **`improvement-agent` is not engineering or management:** it does not implement product code, assign specialists, or run QA; it only records plans/history and recommends bounded governance edits.
+5. **Exploration gate:** agents with a mandatory exploration precursor must obey `.cursor/rules/mandatory-exploration.mdc` before their role-specific work (see **`improvement-agent`** exception there).
+6. **Anti-pattern:** “Orchestration produced only plans/JSON, so the principal session implements the app” → **severe violation** of this rule.

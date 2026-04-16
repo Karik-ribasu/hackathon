@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "feature_slug": "teachable-mastra-admin-assistant",
+  "task_slug": "04-http-client-env-bootstrap",
+  "title": "Cliente HTTP fetch, variáveis de ambiente e fail-fast",
+  "description": "Implementar adaptador TeachableAdminHttpClient (ou equivalente) com fetch nativo, injeção de base URL apenas via .env, envio obrigatório do header X-Consumer-Custom-ID em toda requisição, e validação fail-fast com mensagens claras se config faltar.",
+  "acceptance": [
+    "Base URL lida exclusivamente de variável de ambiente documentada (sem fallback silencioso inseguro).",
+    "Toda chamada inclui o header X-Consumer-Custom-ID; ausência do valor em runtime falha cedo com erro acionável.",
+    "Nenhuma outra forma de autenticação é adicionada além do escopo do MVP.",
+    "Cliente testável por injeção (sem singleton mutável); uso de fetch mockável em testes unitários.",
+    "Testes unitários cobrem validação de env, montagem de URL e propagação de header."
+  ],
+  "depends_on": ["01-openapi-model-and-parser"],
+  "architecture_refs": [
+    "clean-architecture",
+    "ddd-tactical",
+    "singleton-policy",
+    "unit-tests-full-coverage"
+  ],
+  "status": "done",
+  "assigned_agent": "backend-agent",
+  "sector": "backend-engineering",
+  "requires_screen_implementation": false,
+  "stitch_handoff": null,
+  "updated_at": "2026-04-16T13:57:28.000Z"
+}

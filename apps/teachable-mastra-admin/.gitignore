@@ -1,0 +1,13 @@
+output.txt 
+node_modules 
+dist 
+src/generated 
+src/mastra/tools/admin-api-tools.ts
+coverage 
+.mastra 
+.env.development 
+.env 
+*.db 
+*.db-* 
+.netlify 
+.vercel 

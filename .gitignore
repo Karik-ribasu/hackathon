@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build / coverage
+**/dist/
+**/coverage/
+*.tsbuildinfo
+
+# Environment (secrets)
+.env
+.env.local
+.env.*.local
+.env.development
+
+# Logs & debug
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+
+# Local data / caches
+.data/
+.cache/
+
+# Mastra (local dev / build output)
+.mastra/
+**/.mastra/
+
+# OpenAPI codegen output in packages (regenerate: npm run codegen:admin-api)
+packages/admin-tools-codegen/generated/
